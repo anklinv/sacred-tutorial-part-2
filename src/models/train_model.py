@@ -1,10 +1,11 @@
-import torch.optimizer as optim
+import os
+from torch import optim
 import torch.nn.functional as F
 import torch.nn as nn
 import torch
 import torchvision
 
-from models.simple_net import Net
+from simple_net import Net
 
 n_epochs = 3
 batch_size_train = 64
@@ -12,11 +13,13 @@ batch_size_test = 1000
 learning_rate = 0.01
 momentum = 0.5
 log_interval = 100
+data_path = '../../data'
+model_path = '../../models'
 
 torch.backends.cudnn.enabled = False
 
 train_loader = torch.utils.data.DataLoader(
-    torchvision.datasets.MNIST('data', train=True, download=True,
+    torchvision.datasets.MNIST(data_path, train=True, download=False,
                                transform=torchvision.transforms.Compose([
                                    torchvision.transforms.ToTensor(),
                                    torchvision.transforms.Normalize(
@@ -25,7 +28,7 @@ train_loader = torch.utils.data.DataLoader(
     batch_size=batch_size_train, shuffle=True)
 
 test_loader = torch.utils.data.DataLoader(
-    torchvision.datasets.MNIST('data', train=False, download=True,
+    torchvision.datasets.MNIST(data_path, train=False, download=False,
                                transform=torchvision.transforms.Compose([
                                    torchvision.transforms.ToTensor(),
                                    torchvision.transforms.Normalize(
@@ -58,8 +61,8 @@ def train(epoch):
             train_losses.append(loss.item())
             train_counter.append(
                 (batch_idx*64) + ((epoch-1)*len(train_loader.dataset)))
-            torch.save(network.state_dict(), 'results/model.pth')
-            torch.save(optimizer.state_dict(), 'results/optimizer.pth')
+            torch.save(network.state_dict(), os.path.join(model_path, 'model.pth'))
+            torch.save(optimizer.state_dict(), os.path.join(model_path, 'optimizer.pth'))
 
 
 def test():
